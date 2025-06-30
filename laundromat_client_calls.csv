@@ -1,0 +1,26 @@
+Client Name,First Name,Last Name,Phone Number,Email,Order Number,Call Log Time,Order Status,Pickup Needed,Dropoff Needed,Laundry Weight (lbs),Special Instructions,Estimated Total,Delivery Address,Preferred Contact Time,Call Result,Follow-Up Needed
+John Doe,John,Doe,555-123-4567,johndoe@email.com,ORD001,2025-06-30 10:15 AM,Completed,Yes,Yes,15,None,$22.50,123 Maple St,10:00 AM - 12:00 PM,Confirmed,No
+Jane Smith,Jane,Smith,555-987-6543,janesmith@email.com,ORD002,2025-06-30 11:00 AM,In Progress,No,Yes,10,Fold shirts neatly,$15.00,456 Oak Ave,11:00 AM - 1:00 PM,Confirmed,No
+Carlos Reyes,Carlos,Reyes,555-222-3344,carlos@email.com,ORD003,2025-06-30 01:30 PM,Pending,Yes,No,18,Separate colors,$27.00,789 Birch Rd,2:00 PM - 4:00 PM,Voicemail Left,Yes
+Nina Patel,Nina,Patel,555-333-2211,nina.patel@email.com,ORD004,2025-06-30 02:45 PM,Completed,No,No,5,None,$7.50,321 Cedar Ln,3:00 PM - 5:00 PM,Confirmed,No
+Marcus Lee,Marcus,Lee,555-444-7788,marcuslee@email.com,ORD005,2025-06-30 03:10 PM,In Progress,Yes,Yes,22,Use hypoallergenic detergent,$33.00,654 Spruce Ct,12:00 PM - 2:00 PM,Confirmed,No
+Tanya Brooks,Tanya,Brooks,555-666-1122,tanyab@email.com,ORD006,2025-06-30 04:00 PM,Pending,Yes,Yes,30,Delicates in mesh bag,$45.00,987 Elm St,1:00 PM - 3:00 PM,Busy Line,Yes
+Omar Jackson,Omar,Jackson,555-777-8899,ojackson@email.com,ORD007,2025-06-30 09:45 AM,Completed,No,No,12,None,$18.00,111 Pine Way,9:00 AM - 11:00 AM,Confirmed,No
+Lily Nguyen,Lily,Nguyen,555-888-6677,lnguyen@email.com,ORD008,2025-06-30 12:20 PM,Cancelled,Yes,No,8,Clean baby clothes separately,$12.00,222 Walnut Blvd,10:00 AM - 12:00 PM,Confirmed,No
+Ravi Shah,Ravi,Shah,555-999-5566,ravishah@email.com,ORD009,2025-06-30 01:10 PM,In Progress,No,Yes,25,None,$37.50,333 Redwood Dr,2:00 PM - 4:00 PM,Voicemail Left,Yes
+Angela Kim,Angela,Kim,555-111-3344,angelak@email.com,ORD010,2025-06-30 03:30 PM,Completed,Yes,Yes,20,Wash in warm water,$30.00,444 Cypress Ln,3:00 PM - 5:00 PM,Confirmed,No
+Ethan Torres,Ethan,Torres,555-121-3131,ethan.t@email.com,ORD011,2025-06-30 10:50 AM,Pending,Yes,No,6,None,$9.00,555 Chestnut Ct,9:00 AM - 11:00 AM,Confirmed,No
+Sophia Lopez,Sophia,Lopez,555-232-4141,slopez@email.com,ORD012,2025-06-30 11:45 AM,In Progress,No,Yes,28,Hang dry dresses,$42.00,666 Hickory St,1:00 PM - 3:00 PM,Confirmed,No
+Brian White,Brian,White,555-343-5252,bwhite@email.com,ORD013,2025-06-30 02:10 PM,Completed,Yes,Yes,14,None,$21.00,777 Beechwood Ave,12:00 PM - 2:00 PM,Confirmed,No
+Alicia Green,Alicia,Green,555-454-6363,agreen@email.com,ORD014,2025-06-30 04:20 PM,Pending,No,Yes,10,Perfumed detergent,$15.00,888 Poplar Pl,2:00 PM - 4:00 PM,Voicemail Left,Yes
+David Lee,David,Lee,555-565-7474,dlee@email.com,ORD015,2025-06-30 01:55 PM,In Progress,Yes,No,16,None,$24.00,999 Sycamore Ter,1:00 PM - 3:00 PM,Confirmed,No
+Michelle Adams,Michelle,Adams,555-676-8585,madams@email.com,ORD016,2025-06-30 10:00 AM,Pending,Yes,Yes,12,Delicates in cold wash,$18.00,101 Clover Rd,10:00 AM - 12:00 PM,Confirmed,No
+Jerome Foster,Jerome,Foster,555-787-9696,jfoster@email.com,ORD017,2025-06-30 11:30 AM,In Progress,Yes,No,20,None,$30.00,202 Daisy St,11:00 AM - 1:00 PM,Voicemail Left,Yes
+Emma Ross,Emma,Ross,555-898-0707,eross@email.com,ORD018,2025-06-30 12:15 PM,Completed,No,Yes,10,Fold socks together,$15.00,303 Lily Ln,12:00 PM - 2:00 PM,Confirmed,No
+Nathan Price,Nathan,Price,555-909-1818,nprice@email.com,ORD019,2025-06-30 01:45 PM,Pending,Yes,Yes,24,No bleach,$36.00,404 Ivy Blvd,1:00 PM - 3:00 PM,Busy Line,Yes
+Grace Bennett,Grace,Bennett,555-010-2929,gbennett@email.com,ORD020,2025-06-30 02:40 PM,In Progress,No,Yes,16,None,$24.00,505 Peony Cir,2:00 PM - 4:00 PM,Confirmed,No
+Derrick Holmes,Derrick,Holmes,555-121-3030,dholmes@email.com,ORD021,2025-06-30 03:55 PM,Completed,Yes,No,18,Separate whites,$27.00,606 Magnolia Dr,3:00 PM - 5:00 PM,No Answer,Yes
+Jasmine Clark,Jasmine,Clark,555-232-4141,jclark@email.com,ORD022,2025-06-30 04:30 PM,Pending,Yes,Yes,22,Use fabric softener,$33.00,707 Tulip Ct,4:00 PM - 6:00 PM,Confirmed,No
+Andre Miller,Andre,Miller,555-343-5252,amiller@email.com,ORD023,2025-06-30 09:20 AM,In Progress,No,No,6,None,$9.00,808 Rosewood Ave,9:00 AM - 11:00 AM,Rescheduled,Yes
+Hannah Nguyen,Hannah,Nguyen,555-454-6363,hnguyen@email.com,ORD024,2025-06-30 11:10 AM,Completed,Yes,Yes,30,Fold baby clothes,$45.00,909 Fern St,11:00 AM - 1:00 PM,Confirmed,No
+Logan Wright,Logan,Wright,555-565-7474,lwright@email.com,ORD025,2025-06-30 01:05 PM,Pending,Yes,No,14,None,$21.00,1010 Garden Ln,1:00 PM - 3:00 PM,Voicemail Left,Yes
