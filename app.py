@@ -4,6 +4,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 import uuid
+from vapi_python import Vapi
 
 # Page configuration
 st.set_page_config(
@@ -66,24 +67,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Phone number formatting function
-def format_phone_for_vapi(phone_str):
-    """Clean and format phone number for VAPI API"""
-    # Remove all non-digit characters
-    clean_phone = ''.join(filter(str.isdigit, phone_str))
-    
-    # Add country code if not present (assuming US numbers)
-    if len(clean_phone) == 10:
-        clean_phone = "1" + clean_phone
-    elif len(clean_phone) == 11 and clean_phone.startswith("1"):
-        pass  # Already has country code
-    else:
-        # Invalid phone number length
-        return None
-    
-    # Format as +1XXXXXXXXXX
-    return f"+{clean_phone}"
-
 # Load demo data
 @st.cache_data
 def load_data():
@@ -105,6 +88,12 @@ if 'leads' not in st.session_state:
 if 'call_history' not in st.session_state:
     st.session_state.call_history = []
 
+if 'vapi_client' not in st.session_state:
+    st.session_state.vapi_client = None
+
+if 'active_calls' not in st.session_state:
+    st.session_state.active_calls = {}
+
 # Sidebar: VAPI credentials and settings
 st.sidebar.markdown("## 🔧 VAPI Settings")
 st.sidebar.markdown("---")
@@ -120,16 +109,48 @@ agent_id = st.sidebar.text_input(
     help="Enter your VAPI Assistant ID"
 )
 
+# Initialize VAPI client when credentials are provided
+if vapi_key and agent_id:
+    try:
+        if st.session_state.vapi_client is None or st.session_state.get('last_vapi_key') != vapi_key:
+            st.session_state.vapi_client = Vapi(api_key=vapi_key)
+            st.session_state.last_vapi_key = vapi_key
+        vapi_status = "✅ VAPI Connected"
+        vapi_configured = True
+    except Exception as e:
+        st.sidebar.error(f"❌ VAPI Connection Error: {str(e)}")
+        vapi_status = "❌ VAPI Connection Failed"
+        vapi_configured = False
+        st.session_state.vapi_client = None
+else:
+    vapi_status = "⚠️ VAPI Not Configured"
+    vapi_configured = False
+    st.session_state.vapi_client = None
+
 # Additional VAPI settings
 st.sidebar.markdown("### Call Settings")
 call_timeout = st.sidebar.slider("Call Timeout (seconds)", 30, 300, 120)
 auto_record = st.sidebar.checkbox("Auto Record Calls", value=True)
 
 # Connection status
-if vapi_key and agent_id:
-    st.sidebar.success("✅ VAPI Configured")
+st.sidebar.markdown("### Status")
+st.sidebar.markdown(vapi_status)
+
+# Active calls status
+active_call_count = len(st.session_state.active_calls)
+if active_call_count > 0:
+    st.sidebar.markdown(f"🔴 **Active Calls:** {active_call_count}")
+    if st.sidebar.button("🛑 Stop All Calls"):
+        for call_id in list(st.session_state.active_calls.keys()):
+            try:
+                if st.session_state.vapi_client:
+                    st.session_state.vapi_client.stop()
+                del st.session_state.active_calls[call_id]
+            except Exception as e:
+                st.sidebar.error(f"Error stopping call {call_id}: {e}")
+        st.rerun()
 else:
-    st.sidebar.warning("⚠️ VAPI Not Configured")
+    st.sidebar.markdown("🟢 **No Active Calls**")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### Quick Stats")
@@ -224,10 +245,10 @@ with tab1:
 with tab2:
     st.subheader("Call Center")
     
-    if not vapi_key or not agent_id:
+    if not vapi_configured:
         st.warning("⚠️ Please configure VAPI credentials in the sidebar to make calls.")
     else:
-        st.success("✅ Ready to make calls!")
+        st.success("✅ Ready to make calls with VAPI Python SDK!")
     
     # Quick call section
     st.markdown("### Quick Call Actions")
@@ -248,66 +269,83 @@ with tab2:
                 col4.write(f"Status: {row['Status']}")
                 col5.write(f"Last Call: {row['Call Status']}")
                 
-                if col6.button("📞 Call", key=f"call_{idx}", type="primary"):
-                    if not (vapi_key and agent_id):
-                        st.error("Please enter VAPI credentials in the sidebar.")
-                    else:
-                        with st.spinner(f"Calling {row['Full Name']}..."):
-                            try:
-                                # Format phone number for VAPI
-                                formatted_phone = format_phone_for_vapi(row["Phone"])
-                                
-                                if not formatted_phone:
-                                    st.error(f"❌ Invalid phone number format: {row['Phone']}")
-                                    continue
-                                
-                                # VAPI API call with correct format
-                                response = requests.post(
-                                    "https://api.vapi.ai/call",
-                                    headers={
-                                        "Authorization": f"Bearer {vapi_key}",
-                                        "Content-Type": "application/json"
-                                    },
-                                    json={
-                                        "phoneNumber": {
-                                            "twilioPhoneNumber": formatted_phone
-                                        },
-                                        "assistantId": agent_id,
-                                        "metadata": {
-                                            "lead_name": row["Full Name"],
-                                            "email": row["Email"],
-                                            "order_id": row["Order ID"],
-                                            "pickup_time": row["Pickup Time"],
-                                            "special_instructions": row["Special Instructions"]
+                # Check if this lead has an active call
+                call_key = f"call_{idx}"
+                is_active = call_key in st.session_state.active_calls
+                
+                if is_active:
+                    if col6.button("🛑 Stop", key=f"stop_{idx}", type="secondary"):
+                        try:
+                            if st.session_state.vapi_client:
+                                st.session_state.vapi_client.stop()
+                            del st.session_state.active_calls[call_key]
+                            
+                            # Log the call end
+                            call_log = {
+                                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "lead_name": row['Full Name'],
+                                "phone": row['Phone'],
+                                "action": "Call Stopped",
+                                "status": "Ended"
+                            }
+                            st.session_state.call_history.append(call_log)
+                            
+                            # Update call status
+                            st.session_state.leads.loc[idx, 'Call Status'] = 'Call Ended'
+                            st.success(f"🛑 Call stopped for {row['Full Name']}")
+                            st.rerun()
+                            
+                        except Exception as e:
+                            st.error(f"❌ Error stopping call: {str(e)}")
+                else:
+                    if col6.button("📞 Call", key=f"call_{idx}", type="primary"):
+                        if not vapi_configured:
+                            st.error("Please configure VAPI credentials in the sidebar.")
+                        else:
+                            with st.spinner(f"Starting call to {row['Full Name']}..."):
+                                try:
+                                    # Prepare variable overrides for personalization
+                                    overrides = {
+                                        "variableValues": {
+                                            "customer_name": row['Full Name'],
+                                            "order_id": row['Order ID'],
+                                            "pickup_time": row['Pickup Time'],
+                                            "special_instructions": row['Special Instructions'],
+                                            "total_cost": row['Total Cost']
                                         }
-                                    },
-                                    timeout=call_timeout
-                                )
-                                
-                                if response.status_code == 200:
-                                    call_data = response.json()
-                                    st.success(f"✅ Call initiated to {row['Full Name']}!")
+                                    }
+                                    
+                                    # Start the call using VAPI Python SDK
+                                    st.session_state.vapi_client.start(
+                                        assistant_id=agent_id,
+                                        assistant_overrides=overrides
+                                    )
+                                    
+                                    # Track active call
+                                    st.session_state.active_calls[call_key] = {
+                                        "lead_name": row['Full Name'],
+                                        "phone": row['Phone'],
+                                        "start_time": datetime.now()
+                                    }
+                                    
+                                    st.success(f"✅ Call started to {row['Full Name']}!")
                                     
                                     # Log the call
                                     call_log = {
                                         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                         "lead_name": row['Full Name'],
                                         "phone": row['Phone'],
-                                        "call_id": call_data.get('id', 'N/A'),
-                                        "status": "Initiated"
+                                        "action": "Call Started",
+                                        "status": "Active"
                                     }
                                     st.session_state.call_history.append(call_log)
                                     
                                     # Update call status
-                                    st.session_state.leads.loc[idx, 'Call Status'] = 'Call Initiated'
+                                    st.session_state.leads.loc[idx, 'Call Status'] = 'Call Active'
+                                    st.rerun()
                                     
-                                else:
-                                    st.error(f"❌ Call failed: {response.status_code} - {response.text}")
-                                    
-                            except requests.exceptions.Timeout:
-                                st.error("❌ Call request timed out. Please try again.")
-                            except Exception as e:
-                                st.error(f"❌ API Error: {str(e)}")
+                                except Exception as e:
+                                    st.error(f"❌ Error starting call: {str(e)}")
                 
                 st.markdown("---")
     else:
@@ -317,7 +355,7 @@ with tab2:
     if st.session_state.call_history:
         st.markdown("### Recent Call History")
         call_df = pd.DataFrame(st.session_state.call_history)
-        st.dataframe(call_df, use_container_width=True)
+        st.dataframe(call_df.tail(10), use_container_width=True)  # Show last 10 calls
 
 with tab3:
     st.subheader("Add New Lead")
@@ -448,5 +486,4 @@ st.markdown("""
     <p>🧺 Outbound Laundromat CRM | Powered by VAPI | Built with Streamlit</p>
 </div>
 """, unsafe_allow_html=True)
-
 
