@@ -66,6 +66,24 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Phone number formatting function
+def format_phone_for_vapi(phone_str):
+    """Clean and format phone number for VAPI API"""
+    # Remove all non-digit characters
+    clean_phone = ''.join(filter(str.isdigit, phone_str))
+    
+    # Add country code if not present (assuming US numbers)
+    if len(clean_phone) == 10:
+        clean_phone = "1" + clean_phone
+    elif len(clean_phone) == 11 and clean_phone.startswith("1"):
+        pass  # Already has country code
+    else:
+        # Invalid phone number length
+        return None
+    
+    # Format as +1XXXXXXXXXX
+    return f"+{clean_phone}"
+
 # Load demo data
 @st.cache_data
 def load_data():
@@ -98,8 +116,8 @@ vapi_key = st.sidebar.text_input(
 )
 
 agent_id = st.sidebar.text_input(
-    "Agent ID",
-    help="Enter your VAPI Agent ID"
+    "Assistant ID",
+    help="Enter your VAPI Assistant ID"
 )
 
 # Additional VAPI settings
@@ -236,7 +254,14 @@ with tab2:
                     else:
                         with st.spinner(f"Calling {row['Full Name']}..."):
                             try:
-                                # VAPI API call
+                                # Format phone number for VAPI
+                                formatted_phone = format_phone_for_vapi(row["Phone"])
+                                
+                                if not formatted_phone:
+                                    st.error(f"❌ Invalid phone number format: {row['Phone']}")
+                                    continue
+                                
+                                # VAPI API call with correct format
                                 response = requests.post(
                                     "https://api.vapi.ai/call",
                                     headers={
@@ -244,8 +269,10 @@ with tab2:
                                         "Content-Type": "application/json"
                                     },
                                     json={
-                                        "phoneNumber": row["Phone"],
-                                        "agent": {"id": agent_id},
+                                        "phoneNumber": {
+                                            "twilioPhoneNumber": formatted_phone
+                                        },
+                                        "assistantId": agent_id,
                                         "metadata": {
                                             "lead_name": row["Full Name"],
                                             "email": row["Email"],
@@ -421,3 +448,5 @@ st.markdown("""
     <p>🧺 Outbound Laundromat CRM | Powered by VAPI | Built with Streamlit</p>
 </div>
 """, unsafe_allow_html=True)
+
+
